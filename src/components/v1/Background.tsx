@@ -1,34 +1,35 @@
 "use client";
+
 import React, { useEffect, useRef } from "react";
 
 const Background = () => {
-  const glowRef = useRef(null);
+  const glowRef = useRef<HTMLDivElement>(null);
   const targetCoords = useRef({ x: 0, y: 0 });
   const currentCoords = useRef({ x: 0, y: 0 });
 
   useEffect(() => {
-    if (typeof window === "undefined") return;
-
-    // Initialize in the center of the screen
     targetCoords.current = {
       x: window.innerWidth / 2,
       y: window.innerHeight / 2,
     };
+
     currentCoords.current = {
       x: window.innerWidth / 2,
       y: window.innerHeight / 2,
     };
 
-    const handleMouseMove = (e) => {
-      targetCoords.current = { x: e.clientX, y: e.clientY };
+    const handleMouseMove = (e: MouseEvent) => {
+      targetCoords.current = {
+        x: e.clientX,
+        y: e.clientY,
+      };
     };
 
     window.addEventListener("mousemove", handleMouseMove);
 
-    let animationFrameId;
+    let animationFrameId: number;
 
     const updatePosition = () => {
-      // Spring interpolation speed factor (0.08 offers a luxurious, organic follow effect)
       const speed = 0.08;
 
       const dx = targetCoords.current.x - currentCoords.current.x;
@@ -38,10 +39,11 @@ const Background = () => {
       currentCoords.current.y += dy * speed;
 
       if (glowRef.current) {
-        // Shift by 300px (half of 600px width/height) to center the radial glow on the cursor
-        glowRef.current.style.transform = `translate3d(${
-          currentCoords.current.x - 300
-        }px, ${currentCoords.current.y - 300}px, 0)`;
+        glowRef.current.style.transform = `translate3d(
+          ${currentCoords.current.x - 300}px,
+          ${currentCoords.current.y - 300}px,
+          0
+        )`;
       }
 
       animationFrameId = requestAnimationFrame(updatePosition);
@@ -62,6 +64,7 @@ const Background = () => {
         <div className="absolute w-[350px] h-[350px] sm:w-[600px] sm:h-[600px] rounded-full bg-violet-600/15 bottom-10 right-10 animate-float-2" />
         <div className="absolute w-[250px] h-[250px] sm:w-[450px] sm:h-[450px] rounded-full bg-blue-600/20 top-1/3 left-1/4 sm:left-1/3 animate-float-3" />
       </div>
+
       <div
         ref={glowRef}
         className="fixed top-0 left-0 w-[600px] h-[600px] rounded-full pointer-events-none z-10 will-change-transform opacity-75"
@@ -71,7 +74,6 @@ const Background = () => {
         }}
       />
 
-      {/* Premium Cinematic Grain/Noise Texture Overlay */}
       <div
         className="absolute inset-0 opacity-[0.025] mix-blend-overlay pointer-events-none z-20"
         style={{
