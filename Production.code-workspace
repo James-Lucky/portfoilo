@@ -1,0 +1,31 @@
+{
+	"folders": [
+		{
+			"path": "."
+		},
+		{
+			"path": "../data sight"
+		},
+		{
+			"path": "../gridtick"
+		},
+		{
+			"path": "../embedly"
+		},
+		{
+			"path": "../../../Work/Open Source"
+		},
+		{
+			"path": "../../../Vault/Logic Building"
+		},
+		{
+			"path": "../../Extensions"
+		},
+		{
+			"path": "../../Packages"
+		}
+	],
+	"settings": {
+		"git.ignoreLimitWarning": true
+	}
+}

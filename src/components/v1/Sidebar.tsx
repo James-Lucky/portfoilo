@@ -72,7 +72,7 @@ const Sidebar = () => {
   };
 
   return (
-    <aside className="lg:max-w-md lg:p-10 lg:ml-12 lg:fixed lg:h-screen text-white lg:w-1/3 p-6 relative z-30 flex flex-col items-center lg:items-start text-center lg:text-left bar">
+    <aside className="lg:max-w-md lg:p-10 lg:ml-12 lg:fixed lg:h-screen text-white lg:w-1/3 p-6 relative z-30 flex flex-col items-center lg:items-start text-center lg:text-left bar mt-12">
       <div className="lg:sticky lg:top-10 w-full flex flex-col items-center lg:items-start">
         <div className="relative flex items-center justify-center mb-8 lg:mb-12 mt-4 w-32 h-32 lg:w-40 lg:h-40">
           <Link href={"/"} className="z-10 w-full h-full">
