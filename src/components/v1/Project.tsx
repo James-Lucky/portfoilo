@@ -1,12 +1,13 @@
 "use client";
+
 import React, { useState, useEffect } from "react";
 import { FiArrowUpRight, FiChevronLeft, FiChevronRight } from "react-icons/fi";
 
 /* ---------------- PROJECT DATA ---------------- */
 
 const projects = [
- /* Ui and ux */
-   {
+  /* UI AND UX */
+  {
     image: "/portfolio.png",
     title: "My Portfolio",
     description:
@@ -16,6 +17,7 @@ const projects = [
     category: "uiux",
     date: "2026-03",
   },
+
   /* PERSONAL */
 
   {
@@ -85,6 +87,17 @@ const projects = [
     category: "freelance",
     date: "2026-05",
   },
+
+  {
+    image: "/trustdentlogo.png",
+    title: "Trust Dent",
+    description:
+      "A digital dental care platform connecting patients, dentists and dental labs with appointments, digital reports, treatment information and patient management tools.",
+    tags: ["Next Js", "Tailwind", "Node", "Express", "React"],
+    link: "https://trustdents.com/",
+    category: "freelance",
+    date: "2026-09",
+  },
 ];
 
 /* ---------------- CATEGORIES ---------------- */
@@ -126,6 +139,7 @@ const Project = () => {
   /* Reset page when category changes */
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setCurrentPage(0);
   }, [activeCategory]);
 
@@ -228,6 +242,7 @@ const Project = () => {
         {totalPages > 1 && (
           <div className="flex items-center justify-center gap-6 mt-10">
             {/* Left Arrow */}
+
             <button
               onClick={prevPage}
               disabled={currentPage === 0}
@@ -237,6 +252,7 @@ const Project = () => {
             </button>
 
             {/* Dots */}
+
             <div className="flex gap-3">
               {Array.from({ length: totalPages }).map((_, index) => (
                 <button
@@ -253,6 +269,7 @@ const Project = () => {
             </div>
 
             {/* Right Arrow */}
+
             <button
               onClick={nextPage}
               disabled={currentPage === totalPages - 1}
