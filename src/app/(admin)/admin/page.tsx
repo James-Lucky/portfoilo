@@ -1,9 +1,5 @@
-import React from 'react'
+import SignIn from "@/components/auth/signin";
 
-const page = () => {
-  return (
-    <div>page</div>
-  )
+export default function AdminPage() {
+  return <SignIn />;
 }
-
-export default page

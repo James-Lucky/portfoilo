@@ -1,35 +1,39 @@
-import { Poppins, Roboto, Geist } from "next/font/google";
+
+import type { Metadata } from "next";
+import type { ReactNode } from "react";
+import { Poppins, Roboto } from "next/font/google";
 import "./globals.css";
-import { cn } from "@/lib/utils";
-
-const geist = Geist({subsets:['latin'],variable:'--font-sans'});
-
-
-// Fonts Veriables
 
 const poppins = Poppins({
   subsets: ["latin"],
   variable: "--font-poppins",
   weight: ["400", "500", "600", "700"],
+  display: "swap",
 });
 
 const roboto = Roboto({
   subsets: ["latin"],
   variable: "--font-roboto",
   weight: ["400", "500", "700"],
+  display: "swap",
 });
 
-//  Meta data of website
-export const metadata = {
+export const metadata: Metadata = {
   title: "Lucky - Portfolio",
-  description: "My First Potfolio",
-  icons: { icon: "/icon.ico" },
+  description: "My First Portfolio",
+  icons: {
+    icon: "/icon.ico",
+  },
 };
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default function RootLayout({
+  children,
+}: Readonly<{ children: ReactNode }>) {
   return (
-    <html lang="en" className={cn("font-sans", geist.variable)}>
-      <body className={`${poppins.variable} ${roboto.variable} antialiased`}>
+    <html lang="en">
+      <body
+        className={`${poppins.variable} ${roboto.variable} antialiased`}
+      >
         {children}
       </body>
     </html>
