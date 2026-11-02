@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useEffect, useRef, useState } from "react";
@@ -7,9 +6,6 @@ import {
   LayoutDashboard,
   ChartNoAxesCombined,
   Globe,
-  FolderKanban,
-  UserRound,
-  BriefcaseBusiness,
   MessageSquare,
   BookOpen,
   Settings,
@@ -18,13 +14,14 @@ import {
   ChevronRight,
   Menu,
   X,
-  Upload,
 } from "lucide-react";
 
 type SidebarProps = {
   activeItem?: string;
   onNavigate?: (item: string) => void;
   onLogout?: () => void;
+  collapsed?: boolean;
+  onToggleCollapse?: () => void;
 };
 
 const workspaceItems = [
@@ -46,8 +43,10 @@ export default function AdminSidebar({
   activeItem,
   onNavigate,
   onLogout,
+  collapsed: externalCollapsed,
+  onToggleCollapse,
 }: SidebarProps) {
-  const [collapsed, setCollapsed] = useState(false);
+  const [internalCollapsed, setInternalCollapsed] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [internalSelected, setInternalSelected] = useState(
     activeItem ?? "Dashboard",
@@ -56,8 +55,11 @@ export default function AdminSidebar({
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  const isCollapsed = externalCollapsed !== undefined ? externalCollapsed : internalCollapsed;
+  const toggleCollapse = onToggleCollapse ?? (() => setInternalCollapsed((value) => !value));
+
   const selectedItem = activeItem ?? internalSelected;
-  const expanded = mobileOpen || !collapsed;
+  const expanded = mobileOpen || !isCollapsed;
 
   useEffect(() => {
     return () => {
@@ -101,9 +103,9 @@ export default function AdminSidebar({
     title: string,
     items: typeof workspaceItems,
   ) => (
-    <section key={title}>
+    <section key={title} className="space-y-1">
       {expanded && (
-        <p className="mb-3 px-3 text-[10px] font-semibold uppercase tracking-[0.16em] text-white/30">
+        <p className="mb-2 px-3 text-[10px] font-semibold uppercase tracking-[0.16em] text-white/30">
           {title}
         </p>
       )}
@@ -122,7 +124,7 @@ export default function AdminSidebar({
               onClick={() => selectItem(label)}
               className={`flex h-11 w-full items-center gap-3 rounded-xl px-3 text-left transition-colors ${
                 active
-                  ? "bg-white/10 text-white"
+                  ? "bg-white/10 text-white font-medium"
                   : "text-white/50 hover:bg-white/[0.06] hover:text-white"
               } ${!expanded ? "justify-center px-0" : ""}`}
             >
@@ -133,7 +135,7 @@ export default function AdminSidebar({
               />
 
               {expanded && (
-                <span className="truncate text-[13px] font-medium">
+                <span className="truncate text-[13px]">
                   {label}
                 </span>
               )}
@@ -169,7 +171,7 @@ export default function AdminSidebar({
 
       <aside
         className={`fixed inset-y-0 left-0 z-[60] flex flex-col border-r border-white/[0.04] bg-[#292929] text-white transition-[width,transform] duration-300 ease-in-out ${
-          collapsed ? "lg:w-[84px]" : "lg:w-[260px]"
+          isCollapsed ? "lg:w-[84px]" : "lg:w-[260px]"
         } ${
           mobileOpen
             ? "w-[260px] translate-x-0"
@@ -192,16 +194,16 @@ export default function AdminSidebar({
 
           <button
             type="button"
-            onClick={() => setCollapsed((value) => !value)}
-            aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
-            title={collapsed ? "Expand sidebar" : "Collapse sidebar"}
+            onClick={toggleCollapse}
+            aria-label={isCollapsed ? "Expand sidebar" : "Collapse sidebar"}
+            title={isCollapsed ? "Expand sidebar" : "Collapse sidebar"}
             className={`hidden h-8 w-8 shrink-0 items-center justify-center rounded-lg text-white/50 transition-colors hover:bg-white/10 hover:text-white lg:flex ${
               expanded
                 ? ""
                 : "absolute inset-0 m-auto"
             }`}
           >
-            {collapsed ? (
+            {isCollapsed ? (
               <ChevronRight size={19} />
             ) : (
               <ChevronLeft size={19} />
@@ -221,45 +223,13 @@ export default function AdminSidebar({
 
         {/* Navigation */}
         <nav
-  aria-label="Admin navigation"
-  className="flex-1 space-y-1 overflow-y-auto overflow-x-hidden px-3 py-5 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
->
-  {[
-    ...workspaceItems,
-    ...contentItems,
-    ...managementItems,
-  ].map(({ label, icon: Icon }) => {
-    const active = selectedItem === label;
-
-    return (
-      <button
-        key={label}
-        type="button"
-        title={!expanded ? label : undefined}
-        aria-label={label}
-        aria-current={active ? "page" : undefined}
-        onClick={() => selectItem(label)}
-        className={`flex h-11 w-full items-center gap-3 rounded-xl px-3 text-left transition-colors ${
-          active
-            ? "bg-white/10 text-white"
-            : "text-white/50 hover:bg-white/[0.06] hover:text-white"
-        } ${!expanded ? "justify-center px-0" : ""}`}
-      >
-        <Icon
-          size={20}
-          strokeWidth={1.8}
-          className="shrink-0"
-        />
-
-        {expanded && (
-          <span className="truncate text-[13px] font-medium">
-            {label}
-          </span>
-        )}
-      </button>
-    );
-  })}
-</nav>
+          aria-label="Admin navigation"
+          className="flex-1 space-y-6 overflow-y-auto overflow-x-hidden px-3 py-5 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+        >
+          {renderSection("Workspace", workspaceItems)}
+          {renderSection("Content", contentItems)}
+          {renderSection("Management", managementItems)}
+        </nav>
 
         {/* Logout */}
         <div className="shrink-0 border-t border-white/[0.06] p-3">

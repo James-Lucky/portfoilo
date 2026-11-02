@@ -1,109 +1,243 @@
+
 "use client";
 
-import React from 'react';
-import Image from 'next/image';
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import { ArrowLeft, Infinity, ShieldCheck, ArrowRight } from "lucide-react";
 
-const SignIn = () => {
+type AuthStep = "phone" | "otp";
+
+export default function Signin() {
+  const router = useRouter();
+
+  const [step, setStep] = useState<AuthStep>("phone");
+  const [phone, setPhone] = useState("");
+  const [otp, setOtp] = useState("");
+  const [timer, setTimer] = useState(0);
+  const [isVerifying, setIsVerifying] = useState(false);
+
+  // If already authenticated, redirect directly to dashboard
+  useEffect(() => {
+    if (typeof window !== "undefined" && localStorage.getItem("admin_auth") === "true") {
+      router.replace("/admin/dashboard");
+    }
+  }, [router]);
+
+  // OTP countdown
+  useEffect(() => {
+    if (timer <= 0) return;
+
+    const interval = setInterval(() => {
+      setTimer((prev) => prev - 1);
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, [timer]);
+
+  // Continue to OTP screen
+  const handleSendOtp = (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (!/^[6-9]\d{9}$/.test(phone)) return;
+
+    setStep("otp");
+    setTimer(30);
+    setOtp("");
+  };
+
+  // Accept any 4-digit OTP and redirect to dashboard
+  const handleVerifyOtp = (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (!/^\d{4}$/.test(otp)) return;
+
+    setIsVerifying(true);
+    if (typeof window !== "undefined") {
+      localStorage.setItem("admin_auth", "true");
+    }
+
+    setTimeout(() => {
+      router.push("/admin/dashboard");
+    }, 300);
+  };
+
+  // Demo resend OTP
+  const handleResendOtp = () => {
+    if (timer > 0) return;
+
+    setOtp("");
+    setTimer(30);
+  };
+
+  // Back navigation
+  const handleBack = () => {
+    if (step === "otp") {
+      setStep("phone");
+      setOtp("");
+      setTimer(0);
+    } else {
+      router.back();
+    }
+  };
+
   return (
-    <>
-      <div className="flex min-h-screen w-full bg-white font-sans text-black">
-        
-        {/* Left Column: Form */}
-        <div className="flex w-full flex-col justify-center px-8 sm:px-12 md:w-1/2 lg:w-[45%] lg:px-24">
-          <div className="mx-auto w-full max-w-md">
-            {/* Logo Placeholder */}
-            <div className="mb-6 h-6 w-6">
-              <svg viewBox="0 0 24 24" fill="currentColor" className="h-full w-full">
-                <path d="M4 12l4-4v8zM16 12l4-4v8zM10 6l4-4v8z" />
-              </svg>
+    <main className="min-h-screen bg-[#f4f4f4] p-2 sm:p-3">
+      <section className="relative flex min-h-[calc(100svh-16px)] sm:min-h-[calc(100svh-24px)] items-center justify-center overflow-hidden rounded-[20px] border border-white/10 bg-[#1d1b1e] px-5 py-20 text-white">
+
+        {/* Background glow */}
+        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_100%_10%,rgba(255,255,255,0.12),transparent_35%),radial-gradient(ellipse_at_0%_100%,rgba(255,255,255,0.10),transparent_30%)]" />
+
+        {/* Back button */}
+        <button
+          onClick={handleBack}
+          type="button"
+          className="absolute left-5 top-5 z-10 flex items-center gap-1.5 rounded-full border border-white/5 bg-white/[0.02] px-3 py-1.5 text-xs text-white/70 transition hover:bg-white/10 hover:text-white"
+        >
+          <ArrowLeft size={14} />
+          Back
+        </button>
+
+        {/* Authentication */}
+        <div className="relative z-10 w-full max-w-[440px]">
+
+          {/* Logo */}
+          <div className="mb-7 flex justify-center">
+            <div className="flex size-12 items-center justify-center rounded-xl border border-white/5 bg-white/[0.07] shadow-lg">
+              <Infinity
+                size={30}
+                strokeWidth={1.7}
+                className="text-white"
+              />
             </div>
+          </div>
 
-            <h1 className="mb-1 text-3xl font-bold tracking-tight">Sign In</h1>
-            <p className="mb-8 text-xs text-gray-400">Continue to access your dashboard</p>
+          {/* Heading */}
+          <div className="mb-8 text-center">
+            <h1 className="text-[24px] font-medium tracking-tight sm:text-[27px]">
+              {step === "phone"
+                ? "welcome back Lucky"
+                : "Check your phone!"}
+            </h1>
 
-            <div className="space-y-3">
-              <button className="flex w-full items-center justify-center gap-2 rounded-full border border-gray-200 py-2.5 text-sm font-medium hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-200 focus:ring-offset-1">
-                <img src="https://www.svgrepo.com/show/475656/google-color.svg" alt="Google" className="h-4 w-4" />
-                Sign in with Google
-              </button>
-              
-              <button className="flex w-full items-center justify-center gap-2 rounded-full border border-gray-200 py-2.5 text-sm font-medium hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-200 focus:ring-offset-1">
-                <svg viewBox="0 0 24 24" fill="currentColor" className="h-4 w-4">
-                  <path d="M17.05 20.28c-.98.95-2.05.8-3.08.35-1.09-.46-2.09-.48-3.24 0-1.44.62-2.2.44-3.06-.35C2.79 15.25 3.51 7.59 9.05 7.31c1.35.07 2.29.74 3.08.8 1.18-.04 2.26-.8 3.58-.75 1.58.07 2.76.71 3.53 1.83-3.1 1.86-2.6 5.92.51 7.15-.69 1.63-1.63 3.01-2.7 3.94zm-3.32-14.2c.59-1.85-.75-3.64-2.56-3.86-.71 2.05.92 3.82 2.56 3.86z"/>
-                </svg>
-                Sign in with Apple
-              </button>
-            </div>
+            {step === "otp" && (
+              <p className="mt-2 text-[13px] text-white/45">
+                Enter the verification code sent to{" "}
+                <span className="text-white/80">
+                  +91 {phone}
+                </span>
+              </p>
+            )}
+          </div>
 
-            <div className="my-6 flex items-center">
-              <div className="flex-grow border-t border-gray-100"></div>
-              <span className="mx-4 text-[10px] font-semibold uppercase tracking-wider text-gray-300">Or</span>
-              <div className="flex-grow border-t border-gray-100"></div>
-            </div>
+          {/* Phone form */}
+          {step === "phone" ? (
+            <form onSubmit={handleSendOtp} className="space-y-3">
 
-            <form className="space-y-4" onSubmit={(e) => e.preventDefault()}>
-              <div>
-                <label htmlFor="email" className="mb-1.5 block text-xs font-semibold text-gray-900">
-                  Email
-                </label>
+              <div className="flex h-12 items-center overflow-hidden rounded-xl border border-white/[0.07] bg-black/10 transition focus-within:border-white/30">
+                <span className="border-r border-white/[0.08] px-4 text-sm text-white/55">
+                  +91
+                </span>
+
                 <input
-                  type="email"
-                  id="email"
-                  placeholder="Enter your email"
-                  className="w-full rounded-full border border-gray-200 px-4 py-2.5 text-sm text-gray-900 placeholder:text-gray-300 focus:border-black focus:outline-none focus:ring-1 focus:ring-black"
-                  required
-                />
-              </div>
-
-              <div>
-                <div className="mb-1.5 flex items-center justify-between">
-                  <label htmlFor="password" className="text-xs font-semibold text-gray-900">
-                    Password
-                  </label>
-                  <a href="#" className="text-xs font-semibold text-black underline hover:text-gray-600">
-                    Forget Password?
-                  </a>
-                </div>
-                <input
-                  type="password"
-                  id="password"
-                  placeholder="Enter your password"
-                  className="w-full rounded-full border border-gray-200 px-4 py-2.5 text-sm text-gray-900 placeholder:text-gray-300 focus:border-black focus:outline-none focus:ring-1 focus:ring-black"
+                  type="tel"
+                  inputMode="numeric"
+                  autoComplete="tel-national"
+                  maxLength={10}
+                  placeholder="Your phone number"
+                  value={phone}
+                  onChange={(e) =>
+                    setPhone(
+                      e.target.value.replace(/\D/g, "").slice(0, 10)
+                    )
+                  }
+                  className="h-full w-full bg-transparent px-3 text-sm text-white outline-none placeholder:text-white/30"
                   required
                 />
               </div>
 
               <button
                 type="submit"
-                className="mt-2 w-full rounded-full bg-black py-2.5 text-sm font-medium text-white hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-black focus:ring-offset-2"
+                disabled={phone.length !== 10}
+                className="flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-white text-sm font-semibold text-black transition hover:bg-white/90 disabled:cursor-not-allowed disabled:opacity-50"
               >
-                Sign In
+                Continue
+                <ArrowRight size={16} />
               </button>
+
+              <p className="pt-1 text-center text-xs text-white/40">
+                We will send you a one-time password to verify your number.
+              </p>
             </form>
+          ) : (
 
-            <p className="mt-8 text-center text-xs text-gray-400">
-              Don&apos;t have an account?{' '}
-              <a href="#" className="font-semibold text-black underline hover:text-gray-700">
-                Create an Account
-              </a>
-            </p>
+            /* OTP form */
+            <form onSubmit={handleVerifyOtp} className="space-y-3">
+
+              <input
+                type="text"
+                inputMode="numeric"
+                autoComplete="one-time-code"
+                maxLength={4}
+                placeholder="Enter 4-digit OTP"
+                value={otp}
+                onChange={(e) =>
+                  setOtp(
+                    e.target.value.replace(/\D/g, "").slice(0, 4)
+                  )
+                }
+                className="h-12 w-full rounded-xl border border-white/[0.07] bg-black/10 px-4 text-center text-lg tracking-[0.7em] text-white outline-none transition placeholder:text-sm placeholder:tracking-normal placeholder:text-white/30 focus:border-white/30"
+                required
+              />
+
+              <button
+                type="submit"
+                disabled={otp.length !== 4 || isVerifying}
+                className="flex h-12 w-full items-center justify-center rounded-xl bg-white text-sm font-semibold text-black transition hover:bg-white/90 disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                {isVerifying ? (
+                  <span className="flex items-center gap-2">
+                    <span className="size-4 animate-spin rounded-full border-2 border-black border-t-transparent" />
+                    Verifying...
+                  </span>
+                ) : (
+                  "Verify & Enter Dashboard"
+                )}
+              </button>
+
+              <div className="flex items-center justify-between px-1 pt-2 text-xs">
+
+
+                <button
+                  type="button"
+                  onClick={handleResendOtp}
+                  disabled={timer > 0}
+                  className="text-white/70 transition hover:text-white disabled:text-white/30"
+                >
+                  {timer > 0
+                    ? `Resend OTP in ${timer}s`
+                    : "Resend OTP"}
+                </button>
+              </div>
+            </form>
+          )}
+
+          {/* Divider */}
+          <div className="my-5 flex items-center gap-4">
+            <div className="h-px flex-1 bg-white/[0.07]" />
+            <span className="text-[11px] text-white/30">
+              or
+            </span>
+            <div className="h-px flex-1 bg-white/[0.07]" />
           </div>
-        </div>
 
-        {/* Right Column: Background Image */}
-        <div className="relative hidden w-full bg-gray-50 md:block md:w-1/2 lg:w-[55%]">
-          <Image 
-            src="/image_c96e75.jpg" 
-            alt="Abstract Halftone Pattern" 
-            fill
-            priority
-            className="object-cover object-center"
-          />
+          {/* Security info */}
+          <div className="flex h-12 items-center justify-center gap-2 rounded-xl border border-white/[0.07] bg-white/[0.015] text-xs text-white/65">
+            <ShieldCheck size={15} className="text-white/50" />
+            Secure OTP authentication
+          </div>
+
         </div>
-        
-      </div>
-    </>
+      </section>
+    </main>
   );
-};
-
-export default SignIn;
+}
