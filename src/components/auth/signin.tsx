@@ -3,7 +3,12 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { ArrowLeft, Infinity, ShieldCheck, ArrowRight } from "lucide-react";
+import {
+  ArrowLeft,
+  Infinity,
+  ShieldCheck,
+  ArrowRight,
+} from "lucide-react";
 
 type AuthStep = "phone" | "otp";
 
@@ -15,13 +20,6 @@ export default function Signin() {
   const [otp, setOtp] = useState("");
   const [timer, setTimer] = useState(0);
   const [isVerifying, setIsVerifying] = useState(false);
-
-  // If already authenticated, redirect directly to dashboard
-  useEffect(() => {
-    if (typeof window !== "undefined" && localStorage.getItem("admin_auth") === "true") {
-      router.replace("/admin/dashboard");
-    }
-  }, [router]);
 
   // OTP countdown
   useEffect(() => {
@@ -45,23 +43,23 @@ export default function Signin() {
     setOtp("");
   };
 
-  // Accept any 4-digit OTP and redirect to dashboard
+  // Verify OTP (Demo Only)
   const handleVerifyOtp = (e: React.FormEvent) => {
     e.preventDefault();
 
     if (!/^\d{4}$/.test(otp)) return;
 
     setIsVerifying(true);
-    if (typeof window !== "undefined") {
-      localStorage.setItem("admin_auth", "true");
-    }
+
+    // Demo authentication
+    localStorage.setItem("admin_auth", "true");
 
     setTimeout(() => {
       router.push("/admin/dashboard");
     }, 300);
   };
 
-  // Demo resend OTP
+  // Resend OTP
   const handleResendOtp = () => {
     if (timer > 0) return;
 
@@ -131,8 +129,10 @@ export default function Signin() {
 
           {/* Phone form */}
           {step === "phone" ? (
-            <form onSubmit={handleSendOtp} className="space-y-3">
-
+            <form
+              onSubmit={handleSendOtp}
+              className="space-y-3"
+            >
               <div className="flex h-12 items-center overflow-hidden rounded-xl border border-white/[0.07] bg-black/10 transition focus-within:border-white/30">
                 <span className="border-r border-white/[0.08] px-4 text-sm text-white/55">
                   +91
@@ -171,8 +171,10 @@ export default function Signin() {
           ) : (
 
             /* OTP form */
-            <form onSubmit={handleVerifyOtp} className="space-y-3">
-
+            <form
+              onSubmit={handleVerifyOtp}
+              className="space-y-3"
+            >
               <input
                 type="text"
                 inputMode="numeric"
@@ -205,8 +207,6 @@ export default function Signin() {
               </button>
 
               <div className="flex items-center justify-between px-1 pt-2 text-xs">
-
-
                 <button
                   type="button"
                   onClick={handleResendOtp}
@@ -224,9 +224,11 @@ export default function Signin() {
           {/* Divider */}
           <div className="my-5 flex items-center gap-4">
             <div className="h-px flex-1 bg-white/[0.07]" />
+
             <span className="text-[11px] text-white/30">
               or
             </span>
+
             <div className="h-px flex-1 bg-white/[0.07]" />
           </div>
 

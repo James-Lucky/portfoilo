@@ -1,14 +1,12 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
-import type { ChangeEvent } from "react";
+import { useEffect, useState } from "react";
+import { useRouter, usePathname } from "next/navigation";
 import {
   LayoutDashboard,
-  ChartNoAxesCombined,
   Globe,
   MessageSquare,
   BookOpen,
-  Settings,
   LogOut,
   ChevronLeft,
   ChevronRight,
@@ -16,27 +14,38 @@ import {
   X,
 } from "lucide-react";
 
-type SidebarProps = {
-  activeItem?: string;
-  onNavigate?: (item: string) => void;
-  onLogout?: () => void;
-  collapsed?: boolean;
-  onToggleCollapse?: () => void;
-};
+import type { ISidebarProps, ISidebarItem } from "@/types/AdminTypes";
 
-const workspaceItems = [
-  { label: "Dashboard", icon: LayoutDashboard },
-  { label: "Analytics", icon: ChartNoAxesCombined },
+// Workspace
+const workspaceItems: ISidebarItem[] = [
+  {
+    label: "Dashboard",
+    icon: LayoutDashboard,
+    href: "/admin/dashboard",
+  },
 ];
 
-const contentItems = [
-  { label: "Website", icon: Globe },
+// Content
+const contentItems: ISidebarItem[] = [
+  {
+    label: "Website",
+    icon: Globe,
+    href: "/admin/pages/website",
+  },
 ];
 
-const managementItems = [
-  { label: "Contact Inquiries", icon: MessageSquare },
-  { label: "Blog Management", icon: BookOpen },
-  { label: "Settings", icon: Settings },
+// Management
+const managementItems: ISidebarItem[] = [
+  {
+    label: "Contact Inquiries",
+    icon: MessageSquare,
+    href: "/admin/pages/inquiries",
+  },
+  {
+    label: "Blog Management",
+    icon: BookOpen,
+    href: "/admin/pages/blog",
+  },
 ];
 
 export default function AdminSidebar({
@@ -45,63 +54,59 @@ export default function AdminSidebar({
   onLogout,
   collapsed: externalCollapsed,
   onToggleCollapse,
-}: SidebarProps) {
+}: ISidebarProps) {
+  const router = useRouter();
+  const pathname = usePathname();
+
+  // States
   const [internalCollapsed, setInternalCollapsed] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
-  const [internalSelected, setInternalSelected] = useState(
-    activeItem ?? "Dashboard",
-  );
-  const [avatar, setAvatar] = useState("");
 
-  const fileInputRef = useRef<HTMLInputElement>(null);
+  // Collapse state
+  const isCollapsed =
+    externalCollapsed !== undefined
+      ? externalCollapsed
+      : internalCollapsed;
 
-  const isCollapsed = externalCollapsed !== undefined ? externalCollapsed : internalCollapsed;
-  const toggleCollapse = onToggleCollapse ?? (() => setInternalCollapsed((value) => !value));
+  const toggleCollapse =
+    onToggleCollapse ??
+    (() => setInternalCollapsed((value) => !value));
 
-  const selectedItem = activeItem ?? internalSelected;
   const expanded = mobileOpen || !isCollapsed;
 
+  // Close mobile sidebar after navigation
   useEffect(() => {
-    return () => {
-      if (avatar.startsWith("blob:")) {
-        URL.revokeObjectURL(avatar);
-      }
-    };
-  }, [avatar]);
+    const frame = requestAnimationFrame(() => {
+      setMobileOpen(false);
+    });
 
-  const selectItem = (label: string) => {
-    setInternalSelected(label);
+    return () => cancelAnimationFrame(frame);
+  }, [pathname]);
+
+  // Navigation
+  const selectItem = (item: ISidebarItem) => {
+    onNavigate?.(item.label);
+
+    if (pathname !== item.href) {
+      router.push(item.href);
+    }
+
     setMobileOpen(false);
-    onNavigate?.(label);
   };
 
-  const handleAvatarUpload = (
-    event: ChangeEvent<HTMLInputElement>,
-  ) => {
-    const input = event.currentTarget;
-    const file = input.files?.[0];
-
-    if (!file) return;
-
-    if (!file.type.startsWith("image/")) {
-      window.alert("Please select a valid image.");
-      input.value = "";
-      return;
-    }
-
-    if (file.size > 5 * 1024 * 1024) {
-      window.alert("Please select an image smaller than 5 MB.");
-      input.value = "";
-      return;
-    }
-
-    setAvatar(URL.createObjectURL(file));
-    input.value = "";
+  // Active route
+  const isActive = (item: ISidebarItem) => {
+    return (
+      pathname === item.href ||
+      pathname.startsWith(`${item.href}/`) ||
+      (activeItem === item.label && pathname === item.href)
+    );
   };
 
+  // Render navigation sections
   const renderSection = (
     title: string,
-    items: typeof workspaceItems,
+    items: ISidebarItem[]
   ) => (
     <section key={title} className="space-y-1">
       {expanded && (
@@ -111,8 +116,8 @@ export default function AdminSidebar({
       )}
 
       <div className="space-y-1">
-        {items.map(({ label, icon: Icon }) => {
-          const active = selectedItem === label;
+        {items.map(({ label, icon: Icon, href }) => {
+          const active = isActive({ label, icon: Icon, href });
 
           return (
             <button
@@ -121,7 +126,9 @@ export default function AdminSidebar({
               title={!expanded ? label : undefined}
               aria-label={label}
               aria-current={active ? "page" : undefined}
-              onClick={() => selectItem(label)}
+              onClick={() =>
+                selectItem({ label, icon: Icon, href })
+              }
               className={`flex h-11 w-full items-center gap-3 rounded-xl px-3 text-left transition-colors ${
                 active
                   ? "bg-white/10 text-white font-medium"
@@ -148,18 +155,20 @@ export default function AdminSidebar({
 
   return (
     <>
-      {/* Mobile menu */}
+      {/* Mobile Menu Button */}
       <button
         type="button"
         onClick={() => setMobileOpen((open) => !open)}
-        aria-label={mobileOpen ? "Close sidebar" : "Open sidebar"}
+        aria-label={
+          mobileOpen ? "Close sidebar" : "Open sidebar"
+        }
         aria-expanded={mobileOpen}
         className="fixed left-4 top-4 z-[70] flex h-10 w-10 items-center justify-center rounded-xl bg-[#303030] text-white shadow-lg lg:hidden"
       >
         {mobileOpen ? <X size={20} /> : <Menu size={20} />}
       </button>
 
-      {/* Mobile backdrop */}
+      {/* Mobile Backdrop */}
       {mobileOpen && (
         <button
           type="button"
@@ -169,16 +178,23 @@ export default function AdminSidebar({
         />
       )}
 
+      {/* Sidebar */}
       <aside
-        className={`fixed inset-y-0 left-0 z-[60] flex flex-col border-r border-white/[0.04] bg-[#292929] text-white transition-[width,transform] duration-300 ease-in-out ${
-          isCollapsed ? "lg:w-[84px]" : "lg:w-[260px]"
-        } ${
-          mobileOpen
-            ? "w-[260px] translate-x-0"
-            : "w-[260px] -translate-x-full lg:translate-x-0"
-        }`}
+        className={`fixed inset-y-0 left-0 z-[60] flex shrink-0 flex-col border-r border-white/[0.04] bg-[#292929] text-white transition-[width,transform] duration-300 ease-in-out
+          ${
+            isCollapsed
+              ? "lg:w-[84px]"
+              : "lg:w-[260px]"
+          }
+          ${
+            mobileOpen
+              ? "w-[260px] translate-x-0"
+              : "w-[260px] -translate-x-full lg:translate-x-0"
+          }
+          lg:sticky lg:top-0 lg:left-auto lg:inset-y-auto lg:h-screen
+        `}
       >
-        {/* Brand and collapse control */}
+        {/* Brand and Collapse */}
         <div
           className={`relative flex h-[76px] shrink-0 items-center border-b border-white/[0.06] px-4 ${
             expanded ? "justify-between" : "justify-center"
@@ -187,7 +203,7 @@ export default function AdminSidebar({
           {expanded && (
             <div className="min-w-0">
               <p className="truncate text-lg font-semibold tracking-tight">
-                Portfolio Management
+                Admin Panel
               </p>
             </div>
           )}
@@ -195,12 +211,18 @@ export default function AdminSidebar({
           <button
             type="button"
             onClick={toggleCollapse}
-            aria-label={isCollapsed ? "Expand sidebar" : "Collapse sidebar"}
-            title={isCollapsed ? "Expand sidebar" : "Collapse sidebar"}
+            aria-label={
+              isCollapsed
+                ? "Expand sidebar"
+                : "Collapse sidebar"
+            }
+            title={
+              isCollapsed
+                ? "Expand sidebar"
+                : "Collapse sidebar"
+            }
             className={`hidden h-8 w-8 shrink-0 items-center justify-center rounded-lg text-white/50 transition-colors hover:bg-white/10 hover:text-white lg:flex ${
-              expanded
-                ? ""
-                : "absolute inset-0 m-auto"
+              expanded ? "" : "absolute inset-0 m-auto"
             }`}
           >
             {isCollapsed ? (
@@ -211,23 +233,15 @@ export default function AdminSidebar({
           </button>
         </div>
 
-        {/* Profile image input */}
-        <input
-          ref={fileInputRef}
-          type="file"
-          accept="image/*"
-          onChange={handleAvatarUpload}
-          className="hidden"
-          aria-label="Choose profile photo"
-        />
-
         {/* Navigation */}
         <nav
           aria-label="Admin navigation"
           className="flex-1 space-y-6 overflow-y-auto overflow-x-hidden px-3 py-5 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
         >
           {renderSection("Workspace", workspaceItems)}
+
           {renderSection("Content", contentItems)}
+
           {renderSection("Management", managementItems)}
         </nav>
 
@@ -240,7 +254,7 @@ export default function AdminSidebar({
                 onLogout();
               } else {
                 window.alert(
-                  "Connect your authentication logout function.",
+                  "Connect your authentication logout function."
                 );
               }
             }}
