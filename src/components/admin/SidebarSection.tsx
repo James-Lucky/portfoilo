@@ -37,11 +37,6 @@ const contentItems: ISidebarItem[] = [
 // Management
 const managementItems: ISidebarItem[] = [
   {
-    label: "Contact Inquiries",
-    icon: MessageSquare,
-    href: "/admin/pages/inquiries",
-  },
-  {
     label: "Blog Management",
     icon: BookOpen,
     href: "/admin/pages/blog",

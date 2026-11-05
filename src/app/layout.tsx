@@ -1,6 +1,8 @@
 
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
+import "quill/dist/quill.snow.css";
+import "./globals.css";
 import { Poppins, Roboto } from "next/font/google";
 import "./globals.css";
 

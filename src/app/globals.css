@@ -56,3 +56,116 @@ h1, h2, h3 {
 * {
   scroll-behavior: smooth;
 }
+
+
+/* ========================================
+   QUILL RICH TEXT EDITOR
+======================================== */
+
+.blog-quill-wrapper {
+  width: 100%;
+  overflow: hidden;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  background: #ffffff;
+}
+
+/* Toolbar */
+.blog-quill-wrapper .ql-toolbar.ql-snow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  border: none;
+  border-bottom: 1px solid #e5e7eb;
+  background: #fafafa;
+  padding: 14px;
+}
+
+/* Toolbar icons */
+.blog-quill-wrapper .ql-snow .ql-stroke {
+  stroke: #444444;
+}
+
+.blog-quill-wrapper .ql-snow .ql-fill {
+  fill: #444444;
+}
+
+.blog-quill-wrapper .ql-snow .ql-picker {
+  color: #444444;
+}
+
+.blog-quill-wrapper .ql-snow button:hover .ql-stroke,
+.blog-quill-wrapper .ql-snow .ql-picker-label:hover {
+  stroke: #000000;
+  color: #000000;
+}
+
+/* Editor container */
+.blog-quill-wrapper .ql-container.ql-snow {
+  border: none;
+  font-family: Arial, sans-serif;
+  font-size: 15px;
+  color: #262626;
+}
+
+/* Writing area */
+.blog-quill-wrapper .ql-editor {
+  min-height: 420px;
+  padding: 24px;
+  line-height: 1.8;
+}
+
+/* Placeholder */
+.blog-quill-wrapper .ql-editor.ql-blank::before {
+  left: 24px;
+  color: #9ca3af;
+  font-style: normal;
+}
+
+/* Headings */
+.blog-quill-wrapper .ql-editor h1 {
+  font-size: 2rem;
+  font-weight: 700;
+}
+
+.blog-quill-wrapper .ql-editor h2 {
+  font-size: 1.5rem;
+  font-weight: 600;
+}
+
+/* Links */
+.blog-quill-wrapper .ql-editor a {
+  color: #2563eb;
+}
+
+/* Blockquotes */
+.blog-quill-wrapper .ql-editor blockquote {
+  border-left: 4px solid #262626;
+  padding-left: 16px;
+  color: #6b7280;
+}
+
+/* Code blocks */
+.blog-quill-wrapper .ql-editor pre.ql-syntax {
+  background: #262626;
+  color: #f9fafb;
+  border-radius: 8px;
+  padding: 16px;
+}
+
+/* Mobile */
+@media (max-width: 640px) {
+  .blog-quill-wrapper .ql-toolbar.ql-snow {
+    padding: 8px;
+  }
+
+  .blog-quill-wrapper .ql-editor {
+    min-height: 300px;
+    padding: 16px;
+  }
+
+  .blog-quill-wrapper .ql-editor.ql-blank::before {
+    left: 16px;
+  }
+}
+
