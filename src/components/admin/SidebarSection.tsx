@@ -5,7 +5,6 @@ import { useRouter, usePathname } from "next/navigation";
 import {
   LayoutDashboard,
   Globe,
-  MessageSquare,
   BookOpen,
   LogOut,
   ChevronLeft,
@@ -41,6 +40,8 @@ const managementItems: ISidebarItem[] = [
     icon: BookOpen,
     href: "/admin/pages/blog",
   },
+
+
 ];
 
 export default function AdminSidebar({
