@@ -110,7 +110,7 @@ const Sidebar = () => {
                   startOffset="0%"
                   textLength="301.5"
                 >
-                  {"Developer • Engineer • Designer • Developer • Engineer • Designer • "}
+                  {"Developer • Creator • Designer • Developer • Creator • Designer • "}
                 </textPath>
               </text>
             </svg>
