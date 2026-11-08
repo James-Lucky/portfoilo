@@ -1,0 +1,60 @@
+portfolio/
+├── .env.local                              # Database URI, JWT secret, SMTP & Cloudinary keys
+├── src/
+│   ├── middleware.ts                       # Protects /admin/* routes & verifies auth token
+│   │
+│   ├── app/
+│   │   └── api/                            # Next.js App Router Backend API Endpoints
+│   │       ├── auth/
+│   │       │   ├── login/
+│   │       │   │   └── route.ts            # POST: Admin login & cookie set
+│   │       │   ├── logout/
+│   │       │   │   └── route.ts            # POST: Clear admin session cookie
+│   │       │   └── me/
+│   │       │       └── route.ts            # GET: Verify current logged-in admin
+│   │       │
+│   │       ├── dashboard/
+│   │       │   └── route.ts                # GET: Aggregated KPI metrics, chart data & recent updates
+│   │       │
+│   │       ├── website/
+│   │       │   └── route.ts                # GET: Public portfolio data | PUT: Update CMS sections
+│   │       │
+│   │       ├── blogs/
+│   │       │   ├── route.ts                # GET: All/filtered blogs | POST: Create new blog/draft
+│   │       │   └── [id]/
+│   │       │       └── route.ts            # GET: Single blog | PATCH: Edit/Toggle status | DELETE: Remove blog
+│   │       │
+│   │       ├── inquiries/
+│   │       │   ├── route.ts                # GET: All inquiries (Admin) | POST: Submit contact form (Public)
+│   │       │   └── [id]/
+│   │       │       ├── route.ts            # PATCH: Update status (replied/archived) | DELETE: Remove inquiry
+│   │       │       └── reply/
+│   │       │           └── route.ts        # POST: Send direct email reply via Nodemailer
+│   │       │
+│   │       └── upload/
+│   │           └── route.ts                # POST: Upload avatar, project images, certificates & PDF resume
+│   │
+│   ├── lib/                                # Core Backend Utilities & Configurations
+│   │   ├── db.ts                           # Cached MongoDB/Mongoose connection handler
+│   │   ├── auth.ts                         # JWT sign/verify & password hashing helpers
+│   │   ├── mailer.ts                       # Nodemailer SMTP transport configuration
+│   │   ├── cloudinary.ts                   # Image & PDF resume upload helper
+│   │   └── api-response.ts                 # Standardized JSON success/error response wrapper
+│   │
+│   ├── models/                             # Database Schemas (Mongoose Models)
+│   │   ├── Admin.model.ts                  # Admin credentials (email, hashed password)
+│   │   ├── Website.model.ts                # Single-document CMS store (profile, skills, projects, etc.)
+│   │   ├── Blog.model.ts                   # Blog schema (title, slug, content, category, status)
+│   │   ├── Inquiry.model.ts                # Contact messages schema (name, email, subject, status)
+│   │   └── ActivityLog.model.ts            # Tracks recent updates for Dashboard feed & views
+│   │
+│   ├── services/                           # Frontend-to-Backend API Callers (Clean fetch wrappers)
+│   │   ├── website.service.ts              # fetchWebsiteData(), updateWebsiteData()
+│   │   ├── blog.service.ts                 # getBlogs(), createBlog(), updateBlog(), deleteBlog()
+│   │   ├── inquiry.service.ts              # getInquiries(), sendReply(), updateInquiryStatus()
+│   │   └── dashboard.service.ts            # getDashboardOverview()
+│   │
+│   └── types/                              # Your existing types folder
+│       ├── AdminTypes.ts                   # Existing sidebar & admin UI types
+│       ├── PagesTypes.ts                   # Existing frontend page types
+│       └── BackendTypes.ts                 # NEW: API response types, DB document interfaces & JWT payload
