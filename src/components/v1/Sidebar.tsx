@@ -158,7 +158,7 @@ const Sidebar = () => {
             <TbBrandLeetcode />
           </a>
           <a
-            href="https://www.behance.net/lakkiali1"
+            href="https://www.behance.net/luckya7"
             className="text-gray-300 hover:text-blue-300 transition-colors duration-200 text-2xl"
             target="_blank"
             rel="noopener noreferrer"
