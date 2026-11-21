@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useEffect, useState } from "react";
@@ -32,31 +31,37 @@ export default function Signin() {
     return () => clearInterval(interval);
   }, [timer]);
 
-  // Continue to OTP screen
-  const handleSendOtp = (e: React.FormEvent) => {
-    e.preventDefault();
-
-    if (!/^[6-9]\d{9}$/.test(phone)) return;
-
-    setStep("otp");
-    setTimer(30);
-    setOtp("");
-  };
-
-  // Verify OTP (Demo Only)
-  const handleVerifyOtp = (e: React.FormEvent) => {
-    e.preventDefault();
-
-    if (!/^\d{4}$/.test(otp)) return;
-
+  // Auth bypass function: sets server & client cookies and redirects to dashboard
+  const enterDashboard = async () => {
     setIsVerifying(true);
 
-    // Demo authentication
+    try {
+      await fetch("/api/auth/bypass", { method: "POST" });
+    } catch (error) {
+      console.error("Bypass auth error:", error);
+    }
+
+    // Client-side fallback cookie and local storage flag
+    document.cookie =
+      "admin_token=bypass_admin_token; path=/; max-age=604800; SameSite=Lax";
     localStorage.setItem("admin_auth", "true");
 
-    setTimeout(() => {
-      router.push("/admin/dashboard");
-    }, 300);
+    // Full navigation to ensure Next.js middleware reads the cookie immediately
+    window.location.href = "/admin/dashboard";
+  };
+
+  // Handle phone submit (direct bypass)
+  const handleSendOtp = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!phone.trim()) return;
+    enterDashboard();
+  };
+
+  // Handle OTP submit (direct bypass)
+  const handleVerifyOtp = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!otp.trim()) return;
+    enterDashboard();
   };
 
   // Resend OTP
@@ -117,12 +122,16 @@ export default function Signin() {
                 : "Check your phone!"}
             </h1>
 
-            {step === "otp" && (
+            {step === "otp" ? (
               <p className="mt-2 text-[13px] text-white/45">
-                Enter the verification code sent to{" "}
+                Enter any random code to proceed to{" "}
                 <span className="text-white/80">
-                  +91 {phone}
+                  Dashboard
                 </span>
+              </p>
+            ) : (
+              <p className="mt-2 text-[13px] text-white/45">
+                Auth bypass active: enter any number to continue
               </p>
             )}
           </div>
@@ -142,12 +151,12 @@ export default function Signin() {
                   type="tel"
                   inputMode="numeric"
                   autoComplete="tel-national"
-                  maxLength={10}
-                  placeholder="Your phone number"
+                  maxLength={15}
+                  placeholder="Your phone number (any number)"
                   value={phone}
                   onChange={(e) =>
                     setPhone(
-                      e.target.value.replace(/\D/g, "").slice(0, 10)
+                      e.target.value.replace(/\D/g, "").slice(0, 15)
                     )
                   }
                   className="h-full w-full bg-transparent px-3 text-sm text-white outline-none placeholder:text-white/30"
@@ -157,15 +166,37 @@ export default function Signin() {
 
               <button
                 type="submit"
-                disabled={phone.length !== 10}
+                disabled={phone.trim().length === 0 || isVerifying}
                 className="flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-white text-sm font-semibold text-black transition hover:bg-white/90 disabled:cursor-not-allowed disabled:opacity-50"
               >
-                Continue
-                <ArrowRight size={16} />
+                {isVerifying ? (
+                  <span className="flex items-center gap-2">
+                    <span className="size-4 animate-spin rounded-full border-2 border-black border-t-transparent" />
+                    Entering Dashboard...
+                  </span>
+                ) : (
+                  <>
+                    Continue to Dashboard
+                    <ArrowRight size={16} />
+                  </>
+                )}
               </button>
 
+              <div className="flex items-center justify-between px-1 pt-1 text-xs">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setStep("otp");
+                    setTimer(30);
+                  }}
+                  className="text-white/50 transition hover:text-white underline underline-offset-4"
+                >
+                  Or enter via OTP screen
+                </button>
+              </div>
+
               <p className="pt-1 text-center text-xs text-white/40">
-                We will send you a one-time password to verify your number.
+                Put any number and press Continue to enter the dashboard.
               </p>
             </form>
           ) : (
@@ -179,12 +210,12 @@ export default function Signin() {
                 type="text"
                 inputMode="numeric"
                 autoComplete="one-time-code"
-                maxLength={4}
-                placeholder="Enter 4-digit OTP"
+                maxLength={6}
+                placeholder="Enter any OTP"
                 value={otp}
                 onChange={(e) =>
                   setOtp(
-                    e.target.value.replace(/\D/g, "").slice(0, 4)
+                    e.target.value.replace(/\D/g, "").slice(0, 6)
                   )
                 }
                 className="h-12 w-full rounded-xl border border-white/[0.07] bg-black/10 px-4 text-center text-lg tracking-[0.7em] text-white outline-none transition placeholder:text-sm placeholder:tracking-normal placeholder:text-white/30 focus:border-white/30"
@@ -193,13 +224,13 @@ export default function Signin() {
 
               <button
                 type="submit"
-                disabled={otp.length !== 4 || isVerifying}
+                disabled={otp.trim().length === 0 || isVerifying}
                 className="flex h-12 w-full items-center justify-center rounded-xl bg-white text-sm font-semibold text-black transition hover:bg-white/90 disabled:cursor-not-allowed disabled:opacity-50"
               >
                 {isVerifying ? (
                   <span className="flex items-center gap-2">
                     <span className="size-4 animate-spin rounded-full border-2 border-black border-t-transparent" />
-                    Verifying...
+                    Entering Dashboard...
                   </span>
                 ) : (
                   "Verify & Enter Dashboard"
@@ -235,7 +266,7 @@ export default function Signin() {
           {/* Security info */}
           <div className="flex h-12 items-center justify-center gap-2 rounded-xl border border-white/[0.07] bg-white/[0.015] text-xs text-white/65">
             <ShieldCheck size={15} className="text-white/50" />
-            Secure OTP authentication
+            Bypass mode enabled (Demo)
           </div>
 
         </div>

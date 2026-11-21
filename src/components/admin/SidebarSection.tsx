@@ -99,6 +99,24 @@ export default function AdminSidebar({
     );
   };
 
+  // Logout
+  const handleLogout = async () => {
+    if (onLogout) {
+      onLogout();
+      return;
+    }
+
+    try {
+      await fetch("/api/auth/logout", { method: "POST" });
+    } catch (err) {
+      console.error("Logout error:", err);
+    }
+
+    document.cookie = "admin_token=; path=/; max-age=0";
+    localStorage.removeItem("admin_auth");
+    window.location.href = "/admin";
+  };
+
   // Render navigation sections
   const renderSection = (
     title: string,
@@ -245,15 +263,7 @@ export default function AdminSidebar({
         <div className="shrink-0 border-t border-white/[0.06] p-3">
           <button
             type="button"
-            onClick={() => {
-              if (onLogout) {
-                onLogout();
-              } else {
-                window.alert(
-                  "Connect your authentication logout function."
-                );
-              }
-            }}
+            onClick={handleLogout}
             title={!expanded ? "Log out" : undefined}
             aria-label="Log out"
             className={`flex h-11 w-full items-center gap-3 rounded-xl px-3 text-white/50 transition-colors hover:bg-red-500/10 hover:text-red-300 ${
