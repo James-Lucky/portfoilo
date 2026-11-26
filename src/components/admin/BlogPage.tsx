@@ -43,18 +43,7 @@ const INITIAL_BLOGS: IBlogItem[] = [
     status: "published",
     updatedAt: "08 Nov 2026",
   },
-  {
-    id: "blog-2",
-    title: "Integrating AI Agents in SaaS Dashboards",
-    slug: "integrating-ai-agents-in-saas-dashboards",
-    excerpt:
-      "Practical patterns for building clean, responsive AI workflows inside admin panels.",
-    category: "AI & ML",
-    featuredImage: "",
-    content: "<p>Draft notes on LLM streaming and tool calls...</p>",
-    status: "draft",
-    updatedAt: "07 Nov 2026",
-  },
+
 ];
 
 const QUILL_MODULES = {
